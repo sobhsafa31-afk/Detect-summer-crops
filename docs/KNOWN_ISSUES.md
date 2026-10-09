@@ -1,63 +1,64 @@
 # Known Issues and Review Notes
 
-این سند حاصل بازبینی ایستای کد فعلی است. موارد زیر در این تغییرات **اصلاح نشده‌اند**؛ فایل‌های main.py و Function_images.py دست‌نخورده باقی مانده‌اند. موارد نیازمند اجرای واقعی هنوز با تست تأیید نشده‌اند.
+This document summarizes findings from a static code review. The fixes described below are present on the `docs/project-polish` branch. The application has not yet been validated through a complete runtime test.
 
-## اولویت بالا
+## High-Priority Issues Addressed
 
-### 1. ادامهٔ اجرای تابع پس از خطای بارگذاری تصویر
-- **فایل:** main.py، تابع check()
-- **مشاهده:** در بلوک except پیام خطا نمایش داده می‌شود، اما تابع بازگشت یا توقف ندارد.
-- **پیامد احتمالی:** اگر load_image() شکست بخورد، متغیر p ممکن است تعریف نشده باشد و خطوط بعدی خطای دیگری ایجاد کنند.
-- **سناریوی بازتولید:** مسیر فایل ناموجود یا فایلی با قالب غیرقابل‌خواندن وارد کنید.
+### 1. Processing continued after an image-loading error
+- **File:** `main.py`, `check()`
+- **Issue:** The error handler displayed a message but did not stop the function.
+- **Change:** The function now returns after a handled image-loading error, preventing subsequent processing from using an unavailable image.
+- **Validation:** Runtime testing is still required.
 
-### 2. احتمال تقسیم بر صفر در محاسبهٔ نسبت هیستوگرام
-- **فایل:** Function_images.py، تابع caclc_ratio()
-- **مشاهده:** نسبت با تقسیم over_a / under_a محاسبه می‌شود و برای صفر بودن under_a محافظی وجود ندارد.
-- **پیامد احتمالی:** تصاویر با توزیع روشنایی خاص می‌توانند باعث ZeroDivisionError شوند.
-- **سناریوی بازتولید:** ورودی هیستوگرامی بسازید که مجموع خانه‌های پیش از آستانه صفر باشد.
+### 2. Possible division by zero in histogram ratio calculation
+- **File:** `Function_images.py`, `caclc_ratio()`
+- **Issue:** The denominator could be zero when the histogram had no counts below the selected threshold.
+- **Change:** The function now returns positive infinity when the denominator is zero, avoiding `ZeroDivisionError`.
+- **Validation:** Runtime testing is still required.
 
-### 3. احتمال تقسیم بر صفر در میانگین رنگ
-- **فایل:** Function_images.py، تابع average()
-- **مشاهده:** طول فهرست پیکسل‌ها به‌عنوان مخرج استفاده می‌شود؛ حالت فهرست خالی مدیریت نشده است.
-- **پیامد احتمالی:** اگر فیلتر پس‌زمینه هیچ پیکسلی نگه ندارد، محاسبهٔ میانگین شکست می‌خورد.
-- **سناریوی بازتولید:** تصویری فراهم کنید که تمام پیکسل‌های آن توسط شرط فعلی remove_background() حذف شوند.
+### 3. Possible division by zero when averaging an empty pixel list
+- **File:** `Function_images.py`, `average()`
+- **Issue:** An empty list could result when background filtering removed every pixel.
+- **Change:** The function now raises a clear `ValueError` for an empty list, and `main.py` displays an error message and stops processing.
+- **Validation:** Runtime testing is still required.
 
-## اولویت متوسط
+## Remaining Medium-Priority Issues
 
-### 4. فرض RGB بودن دادهٔ تصویر
-- **فایل:** Function_images.py، توابع remove_background() و average()
-- **مشاهده:** کد هر پیکسل را مانند یک تاپل سه‌کانالهٔ RGB می‌خواند؛ تبدیل صریح حالت تصویر انجام نمی‌شود.
-- **پیامد احتمالی:** تصاویر grayscale، palette یا RGBA ممکن است خطا بدهند یا به‌درستی پردازش نشوند.
+### 4. Assumption that image pixels are RGB triples
+- **File:** `Function_images.py`, `remove_background()` and `average()`
+- **Observation:** Pixel values are accessed as three-channel RGB tuples, but image mode is not explicitly normalized.
+- **Potential impact:** Grayscale, palette-based, or RGBA images may fail or be processed incorrectly.
 
-### 5. فیلتر سادهٔ پس‌زمینه ممکن است بخشی از جسم را حذف کند
-- **فایل:** Function_images.py، تابع remove_background()
-- **مشاهده:** هر پیکسلی که هر سه کانال آن کمتر از 230 نباشند حذف می‌شود.
-- **پیامد احتمالی:** بخش‌های سفید یا روشن خود محصول ممکن است مثل پس‌زمینه حذف شوند؛ این روش جداسازی معنایی جسم نیست.
+### 5. Simple background filtering can remove parts of the object
+- **File:** `Function_images.py`, `remove_background()`
+- **Observation:** Pixels are retained only when all three channels are below 230.
+- **Potential impact:** Bright or white areas of the produce may be removed along with the background. This is not semantic object segmentation.
 
-### 6. هزینهٔ محاسباتی استخراج هیستوگرام
-- **فایل:** Function_images.py، تابع get_hist_data()
-- **مشاهده:** برای هر سطح خاکستری از 0 تا 255، تمام پیکسل‌ها دوباره پیمایش می‌شوند.
-- **پیامد احتمالی:** روی تصاویر بزرگ، محاسبه می‌تواند کند باشد.
+### 6. Potentially expensive histogram calculation
+- **File:** `Function_images.py`, `get_hist_data()`
+- **Observation:** The function iterates over all pixels separately for each grayscale value from 0 through 255.
+- **Potential impact:** Processing may be slow for large images.
 
-### 7. قواعد دسته‌بندی بدون سنجش دقت
-- **فایل:** Function_images.py، توابع check_object() و finall_check()
-- **مشاهده:** برچسب‌ها با آستانه‌های دستی رنگ و روشنایی تعیین می‌شوند.
-- **پیامد احتمالی:** محصولات مختلف با رنگ‌های مشابه، نور متفاوت یا پس‌زمینه‌های متنوع ممکن است اشتباه دسته‌بندی شوند؛ مجموعه‌دادهٔ آزمون و معیار دقت در مخزن دیده نمی‌شود.
+### 7. Classification rules have not been accuracy-tested
+- **File:** `Function_images.py`, `check_object()` and `finall_check()`
+- **Observation:** Classification depends on hand-tuned color and brightness thresholds.
+- **Potential impact:** Similar colors, lighting changes, and varied backgrounds may lead to incorrect labels. The repository does not currently include a labeled evaluation dataset or reported accuracy metrics.
 
-## اولویت پایین / نگهداشت‌پذیری
+## Lower-Priority Maintainability Notes
 
-### 8. توابع یا واردسازی‌های احتمالاً بلااستفاده
-- **فایل:** Function_images.py و main.py
-- **مشاهده:** چند تابع کمکی و برخی importها در مسیر اصلی قابل‌مشاهده استفاده نمی‌شوند.
-- **پیامد احتمالی:** پیچیدگی و شلوغی کد بیشتر می‌شود؛ لازم است با جست‌وجوی کل مخزن و تست تأیید شود.
+### 8. Potentially unused helpers or imports
+- **Files:** `Function_images.py` and `main.py`
+- **Observation:** Some helper functions and imports do not appear to be used in the visible application flow.
+- **Potential impact:** They may add complexity. Confirm through repository-wide usage checks and tests before removing anything.
 
-### 9. مدیریت خطا با گرفتن همهٔ استثناها
-- **فایل:** main.py، تابع check()
-- **مشاهده:** از except: عمومی استفاده شده است.
-- **پیامد احتمالی:** علت واقعی خطا پنهان می‌شود و اشکال‌زدایی دشوارتر خواهد شد.
+### 9. Broad exception handling remains in the application
+- **File:** `main.py`, `check()`
+- **Observation:** The function still uses broad exception handling in parts of the code.
+- **Potential impact:** Unexpected failures may be obscured, making debugging harder. This was not changed because the approved scope was limited to the three high-priority issues.
 
-## وضعیت اعتبارسنجی
+## Validation Status
 
-- این گزارش بر مبنای خواندن کد است، نه اجرای برنامه.
-- هیچ‌یک از موارد بالا در این تغییر مستنداتی اصلاح نشده‌اند.
-- پیشنهاد می‌شود ابتدا موارد اولویت بالا با تست‌های کوچک و قابل‌بازتولید پوشش داده شوند، سپس اصلاح کد جداگانه و با بازبینی انجام شود.
+- The code changes were reviewed statically.
+- A complete runtime test has not yet been performed.
+- Medium- and lower-priority findings have intentionally not been changed.
+- Before release, add focused automated tests for image-load failures, empty pixel lists, and zero-denominator histograms, then validate classification against a labeled dataset.
