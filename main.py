@@ -6,13 +6,18 @@ def check():
     address = addres_image_entry.get()
     try:
         p , h , w = load_image(address)
-
-    except:
-        messagebox.showerror("خطا", "عکس یافت نشد")
+    except (OSError, ValueError):
+        messagebox.showerror("خطا", "عکس یافت نشد یا قابل خواندن نیست")
+        return
 
     pixels = remove_background(p)
 
-    a_r , a_g , a_b = average(pixels)
+    try:
+        a_r , a_g , a_b = average(pixels)
+    except ValueError:
+        messagebox.showerror("خطا", "پیکسل قابل استفاده‌ای در تصویر پیدا نشد")
+        return
+
     gray_pixel = rgb2gray(pixels)
     hist_data = get_hist_features(gray_pixel)
 
