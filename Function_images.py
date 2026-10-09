@@ -85,6 +85,9 @@ def remove_background(pixels):
 
 def average(pixels):
     length = len(pixels)
+    if length == 0:
+        raise ValueError("Cannot calculate average from an empty pixel list")
+
     c_r = 0
     c_g = 0
     c_b = 0
@@ -187,6 +190,9 @@ def show(hist_data):
 def caclc_ratio(lst , a , b = 226):
     over_a = sum(lst[a : b])
     under_a = sum(lst[:a])
+    if under_a == 0:
+        return float("inf")
+
     ratio = round(over_a / under_a , 5)
 
     return ratio
