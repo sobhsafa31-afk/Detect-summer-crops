@@ -1,83 +1,95 @@
 # Detect Summer Crops
 
-برنامه‌ای ساده با رابط گرافیکی پایتون برای تخمین نوع برخی صیفی‌جات و محصولات بر اساس رنگ میانگین و ویژگی‌های روشنایی تصویر.
+A small Python desktop application that estimates the type of selected summer crops and vegetables from image color and brightness features.
 
-> **وضعیت پروژه:** نمونهٔ اولیه و مبتنی بر قواعد دستی؛ خروجی‌ها تخمینی هستند و هنوز دقت آن‌ها با مجموعه‌دادهٔ برچسب‌خورده ارزیابی نشده است.
+> **Project status:** This is an early, rule-based prototype. Predictions are estimates, and accuracy has not yet been evaluated against a labeled dataset.
 
-## قابلیت‌ها
+## Features
 
-- رابط گرافیکی دسکتاپ با tkinter
-- خواندن تصویر از مسیر فایل محلی
-- استخراج رنگ‌های میانگین و ویژگی‌های سادهٔ هیستوگرام روشنایی
-- دسته‌بندی قاعده‌محور برای مواردی مانند بادمجان، هویج، پیاز، سیب‌زمینی، خیار، کدو و فلفل دلمه‌ای
-- جداسازی توابع پردازش تصویر در Function_images.py از رابط کاربری در main.py
+- Desktop graphical interface built with `tkinter`
+- Loads an image from a local file path
+- Extracts average color and basic grayscale histogram features
+- Uses hand-written rules to classify examples such as eggplant, carrot, onion, potato, cucumber, zucchini, and bell pepper
+- Separates the graphical interface (`main.py`) from image-processing and classification functions (`Function_images.py`)
 
-## ساختار پروژه
+## Project Structure
 
-    Detect-summer-crops/
-    ├── main.py              # رابط گرافیکی و هماهنگ‌سازی مراحل تشخیص
-    ├── Function_images.py   # بارگذاری، پردازش ویژگی‌ها و قواعد دسته‌بندی
-    ├── requirements.txt     # وابستگی‌های پایتون
-    ├── README.md            # راهنمای پروژه
-    ├── .gitignore           # فایل‌های تولیدی و محلی که نباید ثبت شوند
-    └── docs/
-        └── KNOWN_ISSUES.md  # فهرست ایرادهای شناخته‌شده؛ بدون اعمال اصلاح
+```text
+Detect-summer-crops/
+├── main.py                  # Desktop interface and classification flow
+├── Function_images.py       # Image loading, feature extraction, and classification rules
+├── requirements.txt         # Python dependencies
+├── README.md                # Project documentation
+├── .gitignore               # Local and generated files excluded from Git
+└── docs/
+    └── KNOWN_ISSUES.md      # Known issues and review notes
+```
 
-## پیش‌نیازها
+## Requirements
 
-- Python نصب‌شده
-- محیط گرافیکی دسکتاپ که از tkinter پشتیبانی کند
-- نصب وابستگی‌های درج‌شده در requirements.txt
+- Python 3
+- A desktop environment with `tkinter` support
+- The packages listed in `requirements.txt`
 
-## نصب و اجرا
+## Installation and Usage
 
-1. مخزن را دریافت کنید:
+1. Clone the repository:
 
-       git clone https://github.com/sobhsafa31-afk/Detect-summer-crops.git
-       cd Detect-summer-crops
+   ```bash
+   git clone https://github.com/sobhsafa31-afk/Detect-summer-crops.git
+   cd Detect-summer-crops
+   ```
 
-2. (پیشنهادی) یک محیط مجازی بسازید و فعال کنید:
+2. (Recommended) Create and activate a virtual environment.
 
-   **Windows**
-   
-       py -m venv .venv
-       .venv\Scripts\Activate.ps1
+   **Windows (PowerShell)**
+
+   ```powershell
+   py -m venv .venv
+   .venv\Scripts\Activate.ps1
+   ```
 
    **macOS / Linux**
-   
-       python3 -m venv .venv
-       source .venv/bin/activate
 
-3. وابستگی‌ها را نصب کنید:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
 
-       python -m pip install -r requirements.txt
+3. Install dependencies:
 
-4. برنامه را اجرا کنید:
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
 
-       python main.py
+4. Start the application:
 
-5. مسیر یک فایل تصویر محلی را در فیلد آدرس وارد کنید و روی دکمهٔ «ثبت» بزنید.
+   ```bash
+   python main.py
+   ```
 
-## روش کلی تشخیص
+5. Enter the local path to an image in the address field and select the submit button.
 
-1. تصویر از مسیر محلی خوانده می‌شود.
-2. پیکسل‌های روشن بر اساس یک آستانهٔ ساده فیلتر می‌شوند.
-3. رنگ میانگین و هیستوگرام روشنایی محاسبه می‌شوند.
-4. قواعد شرطی موجود در Function_images.py یک برچسب احتمالی برمی‌گردانند.
+## How Classification Works
 
-این روش مدل یادگیری ماشین آموزش‌دیده نیست؛ نور، پس‌زمینه، زاویه، کیفیت تصویر و هم‌پوشانی رنگ محصولات می‌توانند روی نتیجه اثر بگذارند.
+1. The application loads the image from the provided local path.
+2. A simple threshold-based rule filters bright pixels.
+3. The application calculates average color and grayscale histogram features.
+4. Hand-written conditional rules in `Function_images.py` return a possible label.
 
-## محدودیت‌ها و کیفیت
+This project does not use a trained machine-learning model. Lighting, background, viewing angle, image quality, and similar colors across different produce can affect predictions.
 
-- هنوز تست خودکار یا ارزیابی دقت مستندشده‌ای در مخزن وجود ندارد.
-- پشتیبانی از حالت‌های مختلف تصویر و مدیریت ورودی نامعتبر باید بررسی شود.
-- قواعد رنگی برای استفادهٔ واقعی یا تصمیم‌گیری حساس اعتبارسنجی نشده‌اند.
-- ایرادهای شناخته‌شده فعلاً فقط مستندسازی شده‌اند؛ کد اصلی عمداً در این تغییرات اصلاح نشده است. جزئیات در docs/KNOWN_ISSUES.md آمده است.
+## Limitations
 
-## مشارکت
+- No automated test suite or documented accuracy evaluation is currently included.
+- Support for different image modes and invalid inputs requires further validation.
+- The color-based rules have not been validated for production or safety-critical use.
+- The high-priority issues previously identified have been addressed on the current review branch. Remaining findings are documented in [Known Issues and Review Notes](docs/KNOWN_ISSUES.md).
 
-پیشنهادها و گزارش خطاها خوش‌آمدند. لطفاً هنگام گزارش خطا، سیستم‌عامل، نسخهٔ پایتون، نمونهٔ ورودی (در صورت امکان) و مراحل بازتولید را ذکر کنید.
+## Contributing
 
-## مجوز
+Bug reports and improvements are welcome. When reporting an issue, include your operating system, Python version, input example when possible, and steps to reproduce the behavior.
 
-در حال حاضر فایل مجوزی در مخزن تعریف نشده است. تا زمانی که مجوزی اضافه نشده، شرایط استفاده و بازتوزیع را خودکار فرض نکنید.
+## License
+
+No license file is currently provided. Until a license is added, do not assume that redistribution or reuse is permitted.
