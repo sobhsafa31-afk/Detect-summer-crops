@@ -2,7 +2,7 @@
 
 A small Python desktop application that estimates the type of selected summer crops and vegetables from image color and brightness features.
 
-> **Project status:** This is an early, rule-based prototype. Predictions are estimates, and accuracy has not yet been evaluated against a labeled dataset.
+
 
 ## Features
 
